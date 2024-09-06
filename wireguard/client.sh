@@ -1,3 +1,4 @@
+# https://raw.githubusercontent.com/andrradar/bash-scripts/main/wireguard/client.sh
 #!/bin/bash
 ### Настройка ВМ
 
