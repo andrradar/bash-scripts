@@ -9,10 +9,6 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# Установка пароля для root
-echo "Введите новый пароль для root:"
-passwd root
-
 # Разрешение логина по SSH для root и перезагрузка SSH
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 service ssh restart
