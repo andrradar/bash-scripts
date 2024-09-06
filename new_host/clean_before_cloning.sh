@@ -10,11 +10,9 @@ sudo rm -f /var/lib/dhcp/dhclient.*.leases
 # Удаляем правила udev для сетевых интерфейсов
 sudo rm -f /etc/udev/rules.d/70-persistent-net.rules
 
-# Удаляем конфигурацию Netplan (если используется)
-sudo rm -f /etc/netplan/*.yaml
-
-# Создаем новый Netplan-файл (если требуется)
-sudo tee /etc/netplan/01-netcfg.yaml <<EOF
+# Проверяем наличие и восстановление конфигурации сети
+if [ ! -f /etc/netplan/01-netcfg.yaml ]; then
+  sudo tee /etc/netplan/01-netcfg.yaml <<EOF
 network:
   version: 2
   renderer: networkd
@@ -22,6 +20,10 @@ network:
     eth0:
       dhcp4: yes
 EOF
+fi
+
+# Применяем настройки Netplan (если это используется)
+sudo netplan apply
 
 # Удаляем machine-id для D-Bus и создаем символическую ссылку на новый machine-id
 sudo rm -f /var/lib/dbus/machine-id
@@ -48,6 +50,6 @@ sudo rm -rf /root/.cache/*
 # Даем системе немного времени для завершения работы команд
 sleep 5
 
-# Корректно выключаем систему через shutdown
-echo "Очистка завершена. Корректное выключение машины..."
+# Выключаем систему корректно
+echo "Очистка завершена. Выключаем машину для клонирования..."
 sudo shutdown now
