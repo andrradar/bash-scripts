@@ -1,3 +1,4 @@
+# https://raw.githubusercontent.com/andrradar/bash-scripts/main/new_host/clean-template.sh
 #!/bin/bash
 
 # Удаляем machine-id и создаем новый при следующем запуске
