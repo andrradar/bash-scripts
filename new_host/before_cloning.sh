@@ -14,6 +14,13 @@ sudo rm -f /etc/udev/rules.d/70-persistent-net.rules
 # Удаляем флаг /etc/setup_completed, если он существует (только для эталонной ВМ)
 sudo rm -f /etc/setup_completed
 
+# Очищаем историю терминала для пользователя root
+sudo truncate -s 0 /root/.bash_history
+history -c
+
+# Удаляем логи, чтобы избежать переноса на клоны
+sudo find /var/log -type f -exec truncate -s 0 {} \;
+
 # Создаем скрипт для первого запуска на клонах
 cat <<'EOF' > /usr/local/bin/firstboot-setup.sh
 #!/bin/bash
