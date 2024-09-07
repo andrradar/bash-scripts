@@ -84,25 +84,6 @@ for ((i=1; i<=\$number_clients; i++)); do
 	echo "[Peer]" >> \$server_file
 	echo "PublicKey = \$client_pub_key" >> \$server_file
 	echo "AllowedIPs = \$ip_prefix.\$((start_ip+i-1))/32" >> \$server_file
- 
-# Переименовываем клиентский конфиг, используя только IP сервера
-mv "\$client_file_prefix\$i\$client_file_suffix" "\$server_ip\$client_file_suffix"
-
-done
-exit 0
-EOF
-
-# Даём права на исполнение скрипта и запускаем его
-chmod +x wggen.sh
-./wggen.sh 1    # где 1 - число клиентских конфигов.
-cat $server_ip.conf  # Переименованный клиентский конфиг.
-mv wg0.conf /etc/wireguard/wg0.conf
-systemctl start wg-quick@wg0.service
-systemctl enable wg-quick@wg0.service
-	@@ -125,6 +113,3 @@ systemctl enable nftables.service
-sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
-systemctl restart ssh
 done
 exit 0
 EOF
