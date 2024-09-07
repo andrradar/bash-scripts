@@ -106,3 +106,8 @@ nft add rule ip wg postrouting iif wg0 oif ens3 counter masquerade
 nft -s list ruleset >> /etc/nftables.conf
 systemctl start nftables.service
 systemctl enable nftables.service
+
+# Отключение авторизации по паролю для SSH
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+systemctl restart sshd
