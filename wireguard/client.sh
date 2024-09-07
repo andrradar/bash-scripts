@@ -1,4 +1,7 @@
 #!/bin/bash
+#команды
+#sudo systemctl restart wg-quick@wg0
+#sudo wg
 
 ### Настройка ВМ
 
