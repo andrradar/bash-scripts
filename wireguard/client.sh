@@ -4,7 +4,7 @@
 #sudo wg
 
 ### Настройка ВМ
-
+sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
 sudo apt update
 sudo apt install wireguard-tools
 
