@@ -4,7 +4,6 @@
 #sudo wg
 
 ### Настройка ВМ
-sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
 sudo apt update
 sudo apt install wireguard-tools
 
@@ -20,8 +19,8 @@ fi
 sudo mv "$conf_file" /etc/wireguard/wg0.conf
 echo "Конфигурационный файл $conf_file перемещён в /etc/wireguard/ под именем wg0.conf"
 
-# Меняем порт ssh на 62222 (если необходимо)
-# sudo sed -i 's/#Port 22/Port 62222/' /etc/ssh/sshd_config
+Меняем порт ssh на 62222 (если необходимо)
+sudo sed -i 's/#Port 22/Port 62222/' /etc/ssh/sshd_config
 
 # Перезапускаем WireGuard
 sudo systemctl daemon-reload
