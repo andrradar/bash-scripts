@@ -3,8 +3,15 @@
 
 apt update && apt upgrade -y
 apt install wireguard-tools
-mkdir wg
+
+# Создание директории для конфигураций WireGuard
+mkdir -p wg
 cd wg
+
+# Получаем внешний IP-адрес сервера
+server_ip=$(curl -s -4 ifconfig.me)
+
+# Генерация скрипта для создания серверного и клиентских конфигов
 cat > wggen.sh << EOF
 #!/bin/bash
 
@@ -27,10 +34,9 @@ client_file_suffix=.conf
 wg_pub_ip=\`curl -s -4 ifconfig.me\`
 number_clients="\$1"
 
-
 if [ ! "\$number_clients" ]; then
-	echo "Usage: \$0 <number of client config files>"
-	exit 1
+    echo "Usage: \$0 <number of client config files>"
+    exit 1
 fi
 
 ##########################
@@ -46,17 +52,16 @@ echo "ListenPort = \$wg_port" >> \$server_file
 echo "PrivateKey = \$server_priv_key" >> \$server_file
 
 if [ -f ./\$postup_rules ]; then
-	while read line; do
-		echo "PostUp = \$line" >> \$server_file
-	done < \$postup_rules
+    while read line; do
+        echo "PostUp = \$line" >> \$server_file
+    done < \$postup_rules
 fi
 if [ -f ./\$postdown_rules ]; then
-	while read line; do
-		echo "PostDown = \$line" >> \$server_file
-	done < \$postdown_rules
+    while read line; do
+        echo "PostDown = \$line" >> \$server_file
+    done < \$postdown_rules
 fi
 echo >> \$server_file
-
 
 ###########################
 # Generate client configs #
@@ -64,32 +69,37 @@ echo >> \$server_file
 
 for ((i=1; i<=\$number_clients; i++)); do
 
-	client_priv_key=\`wg genkey\`
-	client_pub_key=\`wg pubkey <<< \$client_priv_key\`
+    client_priv_key=\`wg genkey\`
+    client_pub_key=\`wg pubkey <<< \$client_priv_key\`
 
-	echo "[Interface]" > \$client_file_prefix\$i\$client_file_suffix
-	echo "PrivateKey = \$client_priv_key" >> \$client_file_prefix\$i\$client_file_suffix
-	echo "Address = \$ip_prefix.\$((start_ip+i-1))/\$ip_mask" >> \$client_file_prefix\$i\$client_file_suffix
-	echo "\$DNS" >> \$client_file_prefix\$i\$client_file_suffix
-	echo >> \$client_file_prefix\$i\$client_file_suffix
-	echo "[Peer]" >> \$client_file_prefix\$i\$client_file_suffix
-	# Изменено поле AllowedIPs
-	echo "AllowedIPs = \$allowedips" >> \$client_file_prefix\$i\$client_file_suffix
-	echo "PublicKey = \$server_pub_key" >> \$client_file_prefix\$i\$client_file_suffix
-	echo "Endpoint = \$wg_pub_ip:\$wg_port" >> \$client_file_prefix\$i\$client_file_suffix
-	echo "PersistentKeepalive = 25" >> \$client_file_prefix\$i\$client_file_suffix
-	
-	# add client to server config file
-	echo >> \$server_file
-	echo "[Peer]" >> \$server_file
-	echo "PublicKey = \$client_pub_key" >> \$server_file
-	echo "AllowedIPs = \$ip_prefix.\$((start_ip+i-1))/32" >> \$server_file
+    echo "[Interface]" > \$client_file_prefix\$i\$client_file_suffix
+    echo "PrivateKey = \$client_priv_key" >> \$client_file_prefix\$i\$client_file_suffix
+    echo "Address = \$ip_prefix.\$((start_ip+i-1))/\$ip_mask" >> \$client_file_prefix\$i\$client_file_suffix
+    echo "\$DNS" >> \$client_file_prefix\$i\$client_file_suffix
+    echo >> \$client_file_prefix\$i\$client_file_suffix
+    echo "[Peer]" >> \$client_file_prefix\$i\$client_file_suffix
+    # Изменено поле AllowedIPs
+    echo "AllowedIPs = \$allowedips" >> \$client_file_prefix\$i\$client_file_suffix
+    echo "PublicKey = \$server_pub_key" >> \$client_file_prefix\$i\$client_file_suffix
+    echo "Endpoint = \$wg_pub_ip:\$wg_port" >> \$client_file_prefix\$i\$client_file_suffix
+    echo "PersistentKeepalive = 25" >> \$client_file_prefix\$i\$client_file_suffix
+    
+    # add client to server config file
+    echo >> \$server_file
+    echo "[Peer]" >> \$server_file
+    echo "PublicKey = \$client_pub_key" >> \$server_file
+    echo "AllowedIPs = \$ip_prefix.\$((start_ip+i-1))/32" >> \$server_file
+
+    # Переименовываем клиентский конфиг, используя только IP сервера
+    mv "\$client_file_prefix\$i\$client_file_suffix" "\$server_ip\$client_file_suffix"
 done
 exit 0
 EOF
+
+# Даём права на исполнение скрипта и запускаем его
 chmod +x wggen.sh
 ./wggen.sh 1    # где 1 - число клиентских конфигов.
-cat client1.conf  # Это клиентский конфиг. Его надо перенести на ВМ.
+cat $server_ip.conf  # Переименованный клиентский конфиг.
 mv wg0.conf /etc/wireguard/wg0.conf
 systemctl start wg-quick@wg0.service
 systemctl enable wg-quick@wg0.service
@@ -113,3 +123,6 @@ systemctl enable nftables.service
 sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
 systemctl restart ssh
+
+# Отправка клиентского конфигурационного файла на эталонную ВМ
+scp -i /root/.ssh/ssh1 wg/$server_ip.conf user@77.37.166.82:/root/wg/
