@@ -1,5 +1,7 @@
 #!/bin/bash
 # Настройка ВПС:
+export $(grep -v '^#' .env | xargs)
+
 
 apt update && apt upgrade -y
 apt install wireguard-tools
@@ -125,4 +127,4 @@ sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin prohibit-password/'
 systemctl restart ssh
 
 # Отправка клиентского конфигурационного файла на эталонную ВМ
-scp -i /root/.ssh/ssh1 wg/$server_ip.conf user@77.37.166.82:/root/wg/
+scp -i /root/.ssh/ssh1 wg/$IP.conf user@$IP:/root/wg/
