@@ -16,7 +16,8 @@ if [ -z \$start_ip           ]; then start_ip=101; fi
 if [ -z \$wg_port            ]; then wg_port=51820; fi
 if [ -z \$server_file        ]; then server_file=wg0.conf; fi
 if [ -z \$client_file_prefix ]; then client_file_prefix=client; fi
-if [ -z \$allowedips         ]; then allowedips=0.0.0.0/0; fi
+# Изменено поле allowedips для добавления исключения подсети 10.10.4.0/24
+if [ -z \$allowedips         ]; then allowedips="0.0.0.0/0, 10.10.4.0/24"; fi
 if [ -z "\$DNS"              ]; then DNS='DNS = 1.1.1.1,8.8.8.8'; elif [ "\$DNS" != " " ]; then DNS="DNS = \$DNS"; fi;
 
 postup_rules=postup.rules
@@ -72,6 +73,7 @@ for ((i=1; i<=\$number_clients; i++)); do
 	echo "\$DNS" >> \$client_file_prefix\$i\$client_file_suffix
 	echo >> \$client_file_prefix\$i\$client_file_suffix
 	echo "[Peer]" >> \$client_file_prefix\$i\$client_file_suffix
+	# Изменено поле AllowedIPs
 	echo "AllowedIPs = \$allowedips" >> \$client_file_prefix\$i\$client_file_suffix
 	echo "PublicKey = \$server_pub_key" >> \$client_file_prefix\$i\$client_file_suffix
 	echo "Endpoint = \$wg_pub_ip:\$wg_port" >> \$client_file_prefix\$i\$client_file_suffix
