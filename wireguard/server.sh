@@ -100,7 +100,7 @@ nft add table ip wg
 nft add chain ip wg prerouting {type nat hook prerouting priority dstnat\; policy accept\;}
 nft add rule ip wg prerouting iif "ens3" tcp dport != 22 counter dnat to 10.0.0.101
 nft add rule ip wg prerouting iif "ens3" udp dport != 51820 counter dnat to 10.0.0.101
-qnft add chain ip wg postrouting {type nat hook postrouting priority srcnat\; policy accept\; }
+nft add chain ip wg postrouting {type nat hook postrouting priority srcnat\; policy accept\; }
 nft add rule ip wg postrouting iif wg0 oif ens3 counter masquerade
 
 nft -s list ruleset >> /etc/nftables.conf
@@ -110,4 +110,4 @@ systemctl enable nftables.service
 # Отключение авторизации по паролю для SSH
 sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
-systemctl restart sshd
+systemctl restart ssh
