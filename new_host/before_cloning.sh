@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#https://docs.google.com/spreadsheets/d/1-lQLnIgwCG4RWarEJ_2H1pfjdFN83h6oXxMm0QRsZpQ/edit?gid=0#gid=0
 # Удаляем machine-id, очищаем DHCP lease и сетевые правила, очищаем историю и логи
 sudo truncate -s 0 /etc/machine-id && sudo rm -f /var/lib/dbus/machine-id && sudo ln -s /etc/machine-id /var/lib/dbus/machine-id && \
 sudo rm -f /var/lib/dhcp/dhclient.*.leases && sudo rm -f /etc/udev/rules.d/70-persistent-net.rules && \
