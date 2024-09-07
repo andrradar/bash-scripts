@@ -80,6 +80,13 @@ sudo systemctl restart systemd-networkd
 # Создаем флаг-файл, чтобы знать, что скрипт уже выполнен
 touch /etc/setup_completed
 
+# Очищаем историю терминала
+history -c
+sudo truncate -s 0 ~/.bash_history
+
+# Удаляем сам скрипт после завершения
+sudo rm -f /usr/local/bin/firstboot-setup.sh
+
 echo "Настройка завершена. Машина готова к работе."
 EOF
 
@@ -99,4 +106,5 @@ fi
 # Удаляем флаг-файл, если он существует
 sudo rm -f /etc/setup_completed
 
+# Эталонная ВМ готова для клонирования
 echo "Эталонная ВМ готова для клонирования."
